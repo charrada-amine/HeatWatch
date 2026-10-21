@@ -24,6 +24,7 @@ swift build && swift test             # compiler et lancer les tests
 swift run HeatWatch --probe           # mesure unique en texte, sans interface
 scripts/stress.sh 2 300               # charge de test : 2 cœurs pendant 300 s
 scripts/calibrate.sh 180 180 4        # relevé des températures, au repos puis en charge
+swift scripts/make-icon.swift         # régénère Resources/AppIcon.icns
 ```
 
 ## Ce que montre le menu

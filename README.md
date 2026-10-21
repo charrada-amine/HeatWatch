@@ -45,13 +45,19 @@ Pas plus d'une alerte toutes les 15 minutes pour la même app. « Ignorer 1 h »
 
 ## Autorisations
 
-- **Notifications** : avec une signature ad hoc, macOS peut refuser les notifications (c'est le cas
-  sur ce Mac). HeatWatch affiche alors l'alerte dans une fenêtre classique, avec les mêmes textes et
-  boutons. Pour essayer les notifications : Réglages Système › Notifications › HeatWatch › activer
-  « Autoriser les notifications » et choisir le style « Alertes ».
-- **Lancer au démarrage** : coche « Lancer au démarrage » dans le menu. Si macOS demande une
-  validation, Réglages Système › Général › Ouverture s'ouvre : active HeatWatch dans la liste. Si
-  la case affiche une erreur, ajoute l'app à la main : Réglages Système › Général › Ouverture ›
+- **Notifications** : au premier lancement, macOS demande « HeatWatch souhaite vous envoyer des
+  notifications » : clique sur **Autoriser**. Si la demande a été fermée ou refusée, le menu affiche
+  « Notifications désactivées » et un lien « Activer les notifications… » qui ouvre Réglages Système ›
+  Notifications › HeatWatch : active « Autoriser les notifications » et choisis le style « Alertes ».
+  En attendant, les alertes s'affichent dans une fenêtre classique, avec les mêmes textes et boutons.
+- **Lancer au démarrage** : coche « Lancer au démarrage » dans le menu, ou en ligne de commande :
+
+  ```bash
+  ~/Applications/HeatWatch.app/Contents/MacOS/HeatWatch --launch-at-login on   # ou off, status
+  ```
+
+  Si macOS demande une validation, Réglages Système › Général › Ouverture s'ouvre : active HeatWatch
+  dans la liste. En cas d'erreur, ajoute l'app à la main : Réglages Système › Général › Ouverture ›
   « Ouvrir à la connexion » › bouton « + » › `~/Applications/HeatWatch.app`.
 
 ## Limites

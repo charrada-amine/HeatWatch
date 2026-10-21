@@ -1,14 +1,15 @@
 import AppKit
 import HeatWatchCore
-import ServiceManagement
 
 @MainActor
 final class MonitorModel: ObservableObject {
     @Published private(set) var snapshot: Snapshot?
     @Published private(set) var activeAlert: HeatAlert?
     @Published private(set) var level: HeatLevel = .normal
-    @Published private(set) var launchAtLogin = SMAppService.mainApp.status == .enabled
+    @Published private(set) var launchAtLogin = LoginItem.isEnabled
     @Published private(set) var launchAtLoginError: String?
+    /// False when macOS refuses notifications: alerts then use the NSAlert fallback.
+    @Published private(set) var notificationsAllowed = true
 
     let config: HeatConfig
     private let analyzer: HeatAnalyzer
@@ -25,6 +26,7 @@ final class MonitorModel: ObservableObject {
         guard timer == nil else { return }
         notifier.onQuit = { [weak self] path in self?.quitApp(bundlePath: path) }
         notifier.onSnooze = { [weak self] key in self?.snooze(key: key) }
+        notifier.onAuthorizationChange = { [weak self] allowed in self?.notificationsAllowed = allowed }
         notifier.setUp()
         let timer = Timer(timeInterval: config.sampleInterval, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.sample() }
@@ -84,25 +86,21 @@ final class MonitorModel: ObservableObject {
     }
 
     func setLaunchAtLogin(_ enabled: Bool) {
-        do {
-            if enabled {
-                try SMAppService.mainApp.register()
-            } else {
-                try SMAppService.mainApp.unregister()
-            }
-            launchAtLoginError = nil
-        } catch {
-            // Can fail with an ad hoc signature: the README explains the manual setup.
-            launchAtLoginError = "Impossible de modifier l'ouverture au démarrage : \(error.localizedDescription) "
-                + "Ajoute HeatWatch à la main dans Réglages Système › Général › Ouverture."
+        launchAtLoginError = LoginItem.set(enabled)
+        launchAtLogin = LoginItem.isEnabled
+    }
+
+    /// Called when the menu opens: the user may have changed settings meanwhile.
+    func refreshPermissions() {
+        launchAtLogin = LoginItem.isEnabled
+        notifier.refreshAuthorization()
+    }
+
+    func openNotificationSettings() {
+        let id = Bundle.main.bundleIdentifier ?? "com.charrada.heatwatch"
+        if let url = URL(string: "x-apple.systempreferences:com.apple.Notifications-Settings.extension?id=\(id)") {
+            NSWorkspace.shared.open(url)
         }
-        let status = SMAppService.mainApp.status
-        launchAtLogin = status == .enabled
-        if status == .requiresApproval {
-            launchAtLoginError = "Autorise HeatWatch dans Réglages Système › Général › Ouverture."
-            SMAppService.openSystemSettingsLoginItems()
-        }
-        Log.alerts.notice("launch at login requested=\(enabled) status=\(status.rawValue)")
     }
 
     func openActivityMonitor() {

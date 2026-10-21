@@ -11,6 +11,7 @@ final class Notifier: NSObject, UNUserNotificationCenterDelegate {
 
     var onQuit: ((_ bundlePath: String) -> Void)?
     var onSnooze: ((_ key: String) -> Void)?
+    var onAuthorizationChange: ((_ allowed: Bool) -> Void)?
 
     /// Nil when running outside an `.app` bundle (`swift run`), where UNUserNotificationCenter crashes.
     private let center: UNUserNotificationCenter?
@@ -31,6 +32,15 @@ final class Notifier: NSObject, UNUserNotificationCenterDelegate {
         ])
         center.requestAuthorization(options: [.alert, .sound]) { granted, error in
             Log.alerts.notice("notification authorization granted=\(granted) error=\(String(describing: error), privacy: .public)")
+            Task { @MainActor in self.refreshAuthorization() }
+        }
+    }
+
+    func refreshAuthorization() {
+        guard let center else { return }
+        center.getNotificationSettings { settings in
+            let allowed = settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional
+            Task { @MainActor in self.onAuthorizationChange?(allowed) }
         }
     }
 
@@ -39,6 +49,7 @@ final class Notifier: NSObject, UNUserNotificationCenterDelegate {
         center.getNotificationSettings { settings in
             let allowed = settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional
             Task { @MainActor in
+                self.onAuthorizationChange?(allowed)
                 if allowed { self.post(alert, on: center) } else { self.showFallback(alert) }
             }
         }

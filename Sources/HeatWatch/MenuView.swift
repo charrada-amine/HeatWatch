@@ -12,11 +12,21 @@ struct MenuView: View {
             }
             topApps
             context
+            if !model.notificationsAllowed {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Notifications désactivées : les alertes s'affichent dans une fenêtre.")
+                        .font(.caption).foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Button("Activer les notifications…") { model.openNotificationSettings() }
+                        .buttonStyle(.link).font(.caption)
+                }
+            }
             Divider()
             actions
         }
         .padding(14)
         .frame(width: 320)
+        .onAppear { model.refreshPermissions() }
     }
 
     private var header: some View {

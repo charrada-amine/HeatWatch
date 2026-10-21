@@ -3,6 +3,6 @@ import HeatWatchCore
 @main
 enum EntryPoint {
     static func main() {
-        print(HeatConfig.default.sampleInterval)
+        if CommandLine.arguments.contains("--probe") { Probe.run(); return }
     }
 }

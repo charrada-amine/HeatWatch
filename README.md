@@ -13,7 +13,7 @@ scripts/install.sh
 ```
 
 Le script compile en mode release, assemble `build/HeatWatch.app` (signé ad hoc), ferme l'ancienne
-instance, copie l'app dans `~/Applications` et la lance. L'icône apparaît dans la barre des menus :
+instance, copie l'app dans `/Applications` (le dossier Applications du Finder) et la lance. L'icône apparaît dans la barre des menus :
 un thermomètre suivi de la température du processeur (ex. `48°`), avec un triangle quand une alerte
 est active.
 
@@ -53,12 +53,12 @@ Pas plus d'une alerte toutes les 15 minutes pour la même app. « Ignorer 1 h »
 - **Lancer au démarrage** : coche « Lancer au démarrage » dans le menu, ou en ligne de commande :
 
   ```bash
-  ~/Applications/HeatWatch.app/Contents/MacOS/HeatWatch --launch-at-login on   # ou off, status
+  /Applications/HeatWatch.app/Contents/MacOS/HeatWatch --launch-at-login on   # ou off, status
   ```
 
   Si macOS demande une validation, Réglages Système › Général › Ouverture s'ouvre : active HeatWatch
   dans la liste. En cas d'erreur, ajoute l'app à la main : Réglages Système › Général › Ouverture ›
-  « Ouvrir à la connexion » › bouton « + » › `~/Applications/HeatWatch.app`.
+  « Ouvrir à la connexion » › bouton « + » › `/Applications/HeatWatch.app`.
 
 ## Limites
 

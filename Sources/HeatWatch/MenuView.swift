@@ -70,6 +70,7 @@ struct MenuView: View {
     private var actions: some View {
         VStack(alignment: .leading, spacing: 6) {
             Button("Ouvrir le Moniteur d'activité") { model.openActivityMonitor() }
+            Button("Tester une alerte") { model.sendTestAlert() }
             Button("Quitter HeatWatch") { NSApp.terminate(nil) }
         }
         .buttonStyle(.link)
@@ -95,6 +96,10 @@ struct AlertBox: View {
             Text(alert.explanation.advice).font(.callout).foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
             HStack {
+                if alert.explanation.canQuit, let path = alert.culprit.bundlePath {
+                    Button("Quitter \(alert.culprit.name)") { model.quitApp(bundlePath: path) }
+                        .buttonStyle(.borderedProminent)
+                }
                 Button("Ignorer 1 h") { model.snooze(key: alert.culprit.key) }
             }
         }

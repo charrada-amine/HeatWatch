@@ -1,6 +1,6 @@
 import Foundation
 
-public struct AppUsage: Equatable {
+public struct AppUsage: Equatable, Sendable {
     public let name: String
     /// Outermost `.app` bundle, e.g. `/Applications/Spotify.app`; nil for bare executables.
     public let bundlePath: String?

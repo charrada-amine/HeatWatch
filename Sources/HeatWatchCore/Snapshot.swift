@@ -1,7 +1,7 @@
 import Foundation
 
 /// One complete measurement.
-public struct Snapshot {
+public struct Snapshot: Sendable {
     public let date: Date
     public let cpuTemperature: Double?
     public let batteryTemperature: Double?

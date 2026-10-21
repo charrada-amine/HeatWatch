@@ -12,7 +12,7 @@ public enum HeatLevel: Equatable {
     }
 }
 
-public struct HeatAlert: Equatable {
+public struct HeatAlert: Equatable, Sendable {
     public let culprit: AppUsage
     public let explanation: Explanation
     public let cpuTemperature: Double?

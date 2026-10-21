@@ -1,7 +1,7 @@
 import Foundation
 import IOKit.ps
 
-public struct BatteryState: Equatable {
+public struct BatteryState: Equatable, Sendable {
     public let percent: Int
     public let isCharging: Bool
     public let onAC: Bool

@@ -4,5 +4,6 @@ import HeatWatchCore
 enum EntryPoint {
     static func main() {
         if CommandLine.arguments.contains("--probe") { Probe.run(); return }
+        HeatWatchApp.main()
     }
 }

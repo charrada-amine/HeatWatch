@@ -1,6 +1,6 @@
 import Foundation
 
-public struct ProcessSample: Equatable {
+public struct ProcessSample: Equatable, Sendable {
     public let pid: Int32
     public let cpu: Double
     public let executablePath: String

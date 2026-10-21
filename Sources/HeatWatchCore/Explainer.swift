@@ -1,6 +1,6 @@
 import Foundation
 
-public struct Explanation: Equatable {
+public struct Explanation: Equatable, Sendable {
     public let reason: String
     public let advice: String
     public let canQuit: Bool

@@ -24,6 +24,14 @@ enum Probe {
             print(String(format: "Démarrage  : il y a %.1f jours", days))
         }
         print("thermalState : \(describe(snapshot.thermalState))")
+        if let top = snapshot.apps.first {
+            let explanation = Explainer.explain(top, minutes: 0, snapshot: snapshot)
+            print("Explication pour \(top.name) :")
+            print("  Raison  : \(explanation.reason)")
+            print("  Conseil : \(explanation.advice)")
+            print("  Quitter possible : \(explanation.canQuit ? "oui" : "non")")
+            explanation.context.forEach { print("  Contexte : \($0)") }
+        }
     }
 
     static func format(_ celsius: Double?) -> String {

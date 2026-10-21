@@ -1,11 +1,14 @@
 import AppKit
 import HeatWatchCore
+import ServiceManagement
 
 @MainActor
 final class MonitorModel: ObservableObject {
     @Published private(set) var snapshot: Snapshot?
     @Published private(set) var activeAlert: HeatAlert?
     @Published private(set) var level: HeatLevel = .normal
+    @Published private(set) var launchAtLogin = SMAppService.mainApp.status == .enabled
+    @Published private(set) var launchAtLoginError: String?
 
     let config: HeatConfig
     private let analyzer: HeatAnalyzer
@@ -78,6 +81,28 @@ final class MonitorModel: ObservableObject {
             activeAlert = nil
             if let snapshot { level = analyzer.level(for: snapshot) }
         }
+    }
+
+    func setLaunchAtLogin(_ enabled: Bool) {
+        do {
+            if enabled {
+                try SMAppService.mainApp.register()
+            } else {
+                try SMAppService.mainApp.unregister()
+            }
+            launchAtLoginError = nil
+        } catch {
+            // Can fail with an ad hoc signature: the README explains the manual setup.
+            launchAtLoginError = "Impossible de modifier l'ouverture au démarrage : \(error.localizedDescription) "
+                + "Ajoute HeatWatch à la main dans Réglages Système › Général › Ouverture."
+        }
+        let status = SMAppService.mainApp.status
+        launchAtLogin = status == .enabled
+        if status == .requiresApproval {
+            launchAtLoginError = "Autorise HeatWatch dans Réglages Système › Général › Ouverture."
+            SMAppService.openSystemSettingsLoginItems()
+        }
+        Log.alerts.notice("launch at login requested=\(enabled) status=\(status.rawValue)")
     }
 
     func openActivityMonitor() {

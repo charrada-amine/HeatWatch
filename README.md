@@ -4,6 +4,66 @@ Petite app pour la barre des menus de macOS (Apple Silicon) qui surveille la tem
 processeur et l'utilisation du CPU par app. Quand le Mac chauffe, elle dit **quelle app** est en
 cause, **pourquoi**, et propose de la quitter.
 
+## Installer et lancer
+
+Il faut Xcode (ou les Command Line Tools) et macOS 14 ou plus récent.
+
+```bash
+scripts/install.sh
+```
+
+Le script compile en mode release, assemble `build/HeatWatch.app` (signé ad hoc), ferme l'ancienne
+instance, copie l'app dans `~/Applications` et la lance. L'icône apparaît dans la barre des menus :
+un thermomètre suivi de la température du processeur (ex. `48°`), avec un triangle quand une alerte
+est active.
+
+Autres commandes :
+
+```bash
+swift build && swift test             # compiler et lancer les tests
+swift run HeatWatch --probe           # mesure unique en texte, sans interface
+scripts/stress.sh 2 300               # charge de test : 2 cœurs pendant 300 s
+scripts/calibrate.sh 180 180 4        # relevé des températures, au repos puis en charge
+```
+
+## Ce que montre le menu
+
+1. La température du processeur (Normal / Tiède / Chaud) et celle de la batterie.
+2. En cas d'alerte : l'app en cause, la raison, un conseil, et les boutons « Quitter {app} » (seulement
+   pour une vraie app, jamais pour un processus système) et « Ignorer 1 h ».
+3. Les 5 apps qui consomment le plus de CPU (100 % = un cœur entier, 800 % au maximum sur un M2).
+4. Le contexte : batterie en charge, jours depuis le dernier redémarrage.
+5. « Ouvrir le Moniteur d'activité », « Tester une alerte », « Lancer au démarrage », « Quitter HeatWatch ».
+
+## Quand HeatWatch prévient
+
+- une app dépasse 80 % de CPU pendant 3 minutes ;
+- la température du processeur reste ≥ 80 °C pendant 2 minutes ;
+- macOS signale lui-même une surchauffe (`thermalState` sérieux ou critique).
+
+Pas plus d'une alerte toutes les 15 minutes pour la même app. « Ignorer 1 h » met l'app en pause.
+
+## Autorisations
+
+- **Notifications** : avec une signature ad hoc, macOS peut refuser les notifications (c'est le cas
+  sur ce Mac). HeatWatch affiche alors l'alerte dans une fenêtre classique, avec les mêmes textes et
+  boutons. Pour essayer les notifications : Réglages Système › Notifications › HeatWatch › activer
+  « Autoriser les notifications » et choisir le style « Alertes ».
+- **Lancer au démarrage** : coche « Lancer au démarrage » dans le menu. Si macOS demande une
+  validation, Réglages Système › Général › Ouverture s'ouvre : active HeatWatch dans la liste. Si
+  la case affiche une erreur, ajoute l'app à la main : Réglages Système › Général › Ouverture ›
+  « Ouvrir à la connexion » › bouton « + » › `~/Applications/HeatWatch.app`.
+
+## Limites
+
+- Lecture des capteurs par une API privée d'Apple (IOHIDEventSystem) : elle peut changer avec une
+  future version de macOS.
+- Le % CPU vient de `ps` : c'est une moyenne glissante sur environ une minute, donc une alerte arrive
+  3 à 4 minutes après le début du problème.
+- `kernel_task` n'apparaît pas dans la liste.
+- HeatWatch ne force jamais la fermeture d'une app : il lui demande poliment de quitter.
+- Pas de `sudo`, pas de `powermetrics`, aucune dépendance externe.
+
 ## Calibrage (MacBook Air 15" M2 sans ventilateur, 21/10/2026)
 
 Relevé avec `scripts/calibrate.sh 180 180 4` (une mesure toutes les 10 s) :

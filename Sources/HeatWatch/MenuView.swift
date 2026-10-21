@@ -71,6 +71,15 @@ struct MenuView: View {
         VStack(alignment: .leading, spacing: 6) {
             Button("Ouvrir le Moniteur d'activité") { model.openActivityMonitor() }
             Button("Tester une alerte") { model.sendTestAlert() }
+            Toggle("Lancer au démarrage", isOn: Binding(
+                get: { model.launchAtLogin },
+                set: { model.setLaunchAtLogin($0) }
+            ))
+            .toggleStyle(.checkbox)
+            if let error = model.launchAtLoginError {
+                Text(error).font(.caption).foregroundStyle(.red)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
             Button("Quitter HeatWatch") { NSApp.terminate(nil) }
         }
         .buttonStyle(.link)
